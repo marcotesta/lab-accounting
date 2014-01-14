@@ -98,13 +98,8 @@ public class Center {
         return parent.totalIndirectCostsFor(id);
     }
 
-    public boolean isChild(CenterId centerId) {
-        for (CenterId childId : children.keySet()) {
-            if (childId.equals(centerId)) {
-                return true;
-            }
-        }
-        return false;
+    public boolean hasChild(CenterId centerId) {
+        return children.containsKey(centerId);
     }
 
     public Center get(CenterId centerId) {

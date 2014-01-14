@@ -3,7 +3,7 @@ package it.mondogrua.lab.accounting;
 public class CostProportionStrategy implements Strategy {
 
     public Money computeStrictlyIndirectCosts(Center center, CenterId centerId) {
-        if (! center.isChild(centerId)) {
+        if (! center.hasChild(centerId)) {
             throw new IllegalArgumentException("'" + centerId +"' is not a sub-center of '" + center + "'");
         }
 
@@ -15,7 +15,7 @@ public class CostProportionStrategy implements Strategy {
     }
 
     public Money computeTotalIndirectCosts(Center center, CenterId centerId) {
-        if (! center.isChild(centerId)) {
+        if (! center.hasChild(centerId)) {
             throw new IllegalArgumentException("'" + centerId +"' is not a sub-center of '" + center + "'");
         }
 
@@ -29,10 +29,9 @@ public class CostProportionStrategy implements Strategy {
     // Private Methods ---------------------------------------------------------
 
     private Double computeChildRatio(Center center, CenterId centerId) {
+        assert( center.get(centerId) != null);
+
         Center child = center.get(centerId);
-        if (child == null) {
-            throw new IllegalArgumentException(centerId + " is not a sub-center of " + center);
-        }
 
         Money childrenTotalCosts = center.childrenTotalDirectCosts();
         Money branchCost = child.totalDirectCosts();
