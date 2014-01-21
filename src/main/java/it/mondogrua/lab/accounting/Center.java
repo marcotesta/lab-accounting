@@ -3,6 +3,7 @@ package it.mondogrua.lab.accounting;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -24,7 +25,7 @@ import java.util.Map;
  */
 public class Center {
 
-    private final CenterId id;
+    private final CenterId centerId;
 
     private final Center parent;
 
@@ -38,7 +39,7 @@ public class Center {
 
     public Center(CenterId id, Center parent, Strategy strategy) {
         super();
-        this.id = id;
+        this.centerId = id;
         this.parent = parent;
         this.strategy = strategy;
     }
@@ -47,11 +48,11 @@ public class Center {
 
     public boolean addRecord(Record record) {
 
-        if (!record.getId().startWith(id)) {
+        if (!record.getId().startWith(centerId)) {
             return false;
         }
 
-        if (record.getId().equals(id)) {
+        if (record.getId().equals(centerId)) {
             records.add(record);
             return true;
         } else {
@@ -59,30 +60,39 @@ public class Center {
         }
     }
 
-    public Money strictlyDirectCosts() {
-        Amount costAmount = new Amount();
+    public Cost directCosts() {
+        Cost costAmount = new Cost(centerId);
         for (Record record : records) {
             record.addCost(costAmount);
         }
-        return costAmount.getValue();
+        return costAmount;
+    }
+
+    public List<Cost> childrenCosts() {
+        List<Cost> result = new ArrayList<Cost>();
+        for (Center center : children.values()) {
+            result.add(center.directCosts());
+            result.addAll(center.childrenCosts());
+        }
+        return result;
     }
 
     public Money childrenTotalDirectCosts() {
-        Amount costAmount = new Amount();
+        Money result = new Money(0);
         for (Center center : children.values()) {
-            center.addTotalCostsTo(costAmount);
+            result = result.add(center.totalDirectCosts());
         }
-        return costAmount.getValue();
+        return result;
     }
 
     public Money totalDirectCosts() {
-        Amount costAmount = new Amount();
-        addTotalCostsTo(costAmount);
-        return costAmount.getValue();
+        Money result = directCosts().getValue();
+        result = result.add(childrenTotalDirectCosts());
+        return result;
     }
 
     public Money strictlyCosts() {
-        Money strictlyDirectCosts = strictlyDirectCosts();
+        Money strictlyDirectCosts = directCosts().getValue();
         Money indirectCosts = ancestorIndirectCosts();
 
         Money strictlyCosts = strictlyDirectCosts.add(indirectCosts);
@@ -91,24 +101,26 @@ public class Center {
     }
 
     public Money parentIndirectCosts() {
-        return parent.strictlyIndirectCostsFor(id);
+        return parent.strictlyIndirectCostsFor(centerId);
     }
 
     public Money ancestorIndirectCosts() {
-        return parent.totalIndirectCostsFor(id);
-    }
-
-    public boolean hasChild(CenterId centerId) {
-        return children.containsKey(centerId);
-    }
-
-    public Center get(CenterId centerId) {
-        return children.get(centerId);
+        return parent.totalIndirectCostsFor(centerId);
     }
 
     @Override
     public String toString() {
-        return id.toString();
+        return centerId.toString();
+    }
+
+    // Package Methods ---------------------------------------------------------
+
+    boolean hasChild(CenterId centerId) {
+        return children.containsKey(centerId);
+    }
+
+    Center get(CenterId centerId) {
+        return children.get(centerId);
     }
 
     // Private Methods ---------------------------------------------------------
@@ -121,13 +133,13 @@ public class Center {
         return strategy.computeTotalIndirectCosts(this, centerId);
     }
 
-    private void addTotalCostsTo(Amount costAmount) {
-        costAmount.add(strictlyDirectCosts());
-
-        for (Center center : children.values()) {
-            center.addTotalCostsTo(costAmount);
-        }
-    }
+//    private void addTotalCostsTo(Cost costAmount) {
+//        costAmount.add(directCosts().getValue());
+//
+//        for (Center center : children.values()) {
+//            center.addTotalCostsTo(costAmount);
+//        }
+//    }
 
     private boolean passToChildren(Record record) {
         for (Center child : children.values()) {
@@ -143,9 +155,9 @@ public class Center {
     }
 
     private Center addNewChild(CenterId id) {
-        CenterId nextId = id.trim(this.id.size());
+        CenterId nextId = id.trim(this.centerId.size());
         Center center = new Center(nextId, this, strategy);
-        children.put(center.id, center);
+        children.put(center.centerId, center);
         return center;
     }
 

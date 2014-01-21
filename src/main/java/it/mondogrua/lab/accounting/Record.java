@@ -21,7 +21,7 @@ public class Record {
         return cost;
     }
 
-    public void addCost(Amount amount) {
+    public void addCost(Cost amount) {
         amount.add(cost);
     }
 

@@ -7,7 +7,7 @@ public class CostProportionStrategy implements Strategy {
             throw new IllegalArgumentException("'" + centerId +"' is not a sub-center of '" + center + "'");
         }
 
-        Money strictlyDirectCosts = center.strictlyDirectCosts();
+        Money strictlyDirectCosts = center.directCosts().getValue();
 
         Double ratio = computeChildRatio(center, centerId);
 
