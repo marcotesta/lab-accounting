@@ -63,7 +63,7 @@ public class Center {
 
     // Public Methods ----------------------------------------------------------
 
-    public boolean addRecord(Transaction transaction) {
+    public boolean add(Transaction transaction) {
 
         if (!transaction.getId().startWith(_id)) {
             return false;
@@ -201,7 +201,7 @@ public class Center {
                 !_id.equals(transaction.getId()));
 
         for (Center child : _children.values()) {
-            if (child.addRecord(transaction)) {
+            if (child.add(transaction)) {
                 return true;
             }
         }
@@ -209,7 +209,7 @@ public class Center {
         CenterId nextId = transaction.getId().trim(_id.size()+1);
         Center newChild = addNewChild(nextId);
 
-        newChild.addRecord(transaction);
+        newChild.add(transaction);
 
         return true;
     }

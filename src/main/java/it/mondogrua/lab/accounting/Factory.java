@@ -37,7 +37,7 @@ public class Factory {
         return id;
     }
 
-    public Center createRootCenter() throws ParseException {
+    public Center createRootCenter() {
         Center center = new Center(CenterId.ROOT, Center.EMPTY, this);
         center.setStrategy(new CostProportionStrategy(center));
         return center;

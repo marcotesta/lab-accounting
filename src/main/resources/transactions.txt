@@ -1,0 +1,7 @@
+C201,traduzione,0.50,#pomodorotechnique:libri:inglese
+C134,promozione,0.55,#pomodorotechnique:libri:inglese
+C72,Bolletta luce Maggio-Giugno 2013,2.55,#
+C134,design sito,2.80,#p2p
+C201,traduzione,2.10,#pomodorotechnique:libri:tedesco
+C18,stesura cap.3,3.10,#pomodorotechnique:libri
+

@@ -77,7 +77,7 @@ public class Report {
             builder.append("  ---").append("\n");
         }
         for (CashFlow childDirectCost : _childrenDirectCosts) {
-            builder.append("  ").append(childDirectCost.getId()).append(": ").append(childDirectCost.getValue());
+            builder.append("  ").append(childDirectCost.getId()).append(": ").append(childDirectCost.getValue()).append("\n");
         }
 
         return builder.toString();

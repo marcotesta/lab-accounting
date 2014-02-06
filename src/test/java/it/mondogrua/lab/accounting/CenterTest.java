@@ -20,10 +20,8 @@ public class CenterTest {
 
     @Test
     public void test_DirectCosts_CenterWithOneTransactionAndNoSubCenters() throws Exception {
-        Transaction transaction = factory.createTransaction("C201", "traduzione", "#pomodorotechnique:libri:inglese", 0.50);
-
         Center root = factory.createRootCenter();
-        root.addRecord(transaction);
+        root.add(factory.createTransaction("C201", "traduzione", "#pomodorotechnique:libri:inglese", 0.50));
 
         CashFlow expected = factory.createCashFlow("#pomodorotechnique:libri:inglese", 0.50);
 
@@ -34,10 +32,8 @@ public class CenterTest {
 
     @Test
     public void test_DirectCosts_OverheadCostReportWhitOnlySubCenterCosts() throws Exception {
-        Transaction transaction = factory.createTransaction("C201", "traduzione", "#pomodorotechnique:libri:inglese", 0.50);
-
         Center root = factory.createRootCenter();
-        root.addRecord(transaction);
+        root.add(factory.createTransaction("C201", "traduzione", "#pomodorotechnique:libri:inglese", 0.50));
 
         CashFlow expected = factory.createCashFlow("#", 0.0);
 
@@ -48,10 +44,8 @@ public class CenterTest {
 
     @Test
     public void test_DirectCosts_CenterCostReportWhitOnlySubCenterCosts() throws Exception {
-        Transaction transaction = factory.createTransaction("C201", "traduzione", "#pomodorotechnique:libri:inglese", 0.50);
-
         Center root = factory.createRootCenter();
-        root.addRecord(transaction);
+        root.add(factory.createTransaction("C201", "traduzione", "#pomodorotechnique:libri:inglese", 0.50));
 
         CashFlow expected = factory.createCashFlow("#pomodorotechnique", 0.0);
 
@@ -62,12 +56,9 @@ public class CenterTest {
 
     @Test
     public void test_DirectCosts_CenterCostReportWhitManyTransactions() throws Exception {
-        Transaction transaction1 = factory.createTransaction("C201", "traduzione", "#pomodorotechnique:libri:inglese", 0.50);
-        Transaction transaction2 = factory.createTransaction("C134", "promozione", "#pomodorotechnique:libri:inglese", 0.55);
-
         Center root = factory.createRootCenter();
-        root.addRecord(transaction1);
-        root.addRecord(transaction2);
+        root.add(factory.createTransaction("C201", "traduzione", "#pomodorotechnique:libri:inglese", 0.50));
+        root.add(factory.createTransaction("C134", "promozione", "#pomodorotechnique:libri:inglese", 0.55));
 
         CashFlow expected = factory.createCashFlow("#pomodorotechnique:libri:inglese", 1.05);
 
@@ -78,10 +69,8 @@ public class CenterTest {
 
     @Test
     public void test_ChildrenDirectCosts_CenterWithOneTransactionAndNoSubCenters() throws Exception {
-        Transaction transaction1 = factory.createTransaction("C201", "traduzione", "#pomodorotechnique:libri:inglese", 0.50);
-
         Center root = factory.createRootCenter();
-        root.addRecord(transaction1);
+        root.add(factory.createTransaction("C201", "traduzione", "#pomodorotechnique:libri:inglese", 0.50));
 
         List<CashFlow> expected = new ArrayList<CashFlow>();
 
@@ -92,10 +81,8 @@ public class CenterTest {
 
     @Test
     public void test_ChildernDirectCosts_OverheadCostReportWhitOnlySubCenterCosts() throws Exception {
-        Transaction transaction1 = factory.createTransaction("C201", "traduzione", "#pomodorotechnique:libri:inglese", 0.50);
-
         Center root = factory.createRootCenter();
-        root.addRecord(transaction1);
+        root.add(factory.createTransaction("C201", "traduzione", "#pomodorotechnique:libri:inglese", 0.50));
 
         List<CashFlow> expected = new ArrayList<CashFlow>();
         CashFlow childDirectCosts = factory.createCashFlow("#pomodorotechnique:libri:inglese", 0.50);
@@ -108,10 +95,8 @@ public class CenterTest {
 
     @Test
     public void test_ChildrenDirectCosts_CenterCostReportWhitOnlySubCenterCosts() throws Exception {
-        Transaction transaction1 = factory.createTransaction("C201", "traduzione", "#pomodorotechnique:libri:inglese", 0.50);
-
         Center root = factory.createRootCenter();
-        root.addRecord(transaction1);
+        root.add(factory.createTransaction("C201", "traduzione", "#pomodorotechnique:libri:inglese", 0.50));
 
         List<CashFlow> expected = new ArrayList<CashFlow>();
         CashFlow childDirectCosts = factory.createCashFlow("#pomodorotechnique:libri:inglese", 0.50);
@@ -124,14 +109,10 @@ public class CenterTest {
 
     @Test
     public void test_TotalDirectCosts() throws Exception {
-        Transaction transaction1 = factory.createTransaction("C201", "traduzione", "#pomodorotechnique:libri:inglese", 0.50);
-        Transaction transaction2 = factory.createTransaction("C134", "promozione", "#pomodorotechnique:libri:inglese", 0.55);
-        Transaction transaction3 = factory.createTransaction("C72", "Bolletta luce Maggio-Giugno 2013", "#", 2.55);
-
         Center root = factory.createRootCenter();
-        root.addRecord(transaction1);
-        root.addRecord(transaction2);
-        root.addRecord(transaction3);
+        root.add(factory.createTransaction("C201", "traduzione", "#pomodorotechnique:libri:inglese", 0.50));
+        root.add(factory.createTransaction("C134", "promozione", "#pomodorotechnique:libri:inglese", 0.55));
+        root.add(factory.createTransaction("C72", "Bolletta luce Maggio-Giugno 2013", "#", 2.55));
 
         CashFlow expected = factory.createCashFlow("#");
         expected.add(new Money(new BigDecimal(3.60)));
@@ -144,16 +125,11 @@ public class CenterTest {
 
     @Test
     public void test_TotalDirectCostsForMoreSubCenters() throws Exception {
-        Transaction transaction1 = factory.createTransaction("C201", "traduzione", "#pomodorotechnique:libri:inglese", 0.50);
-        Transaction transaction2 = factory.createTransaction("C134", "promozione", "#pomodorotechnique:libri:inglese", 0.55);
-        Transaction transaction3 = factory.createTransaction("C72", "Bolletta luce Maggio-Giugno 2013", "#", 2.55);
-        Transaction transaction4 = factory.createTransaction("C134", "Design sito", "#p2p", 2.80);
-
         Center root = factory.createRootCenter();
-        root.addRecord(transaction1);
-        root.addRecord(transaction2);
-        root.addRecord(transaction3);
-        root.addRecord(transaction4);
+        root.add(factory.createTransaction("C201", "traduzione", "#pomodorotechnique:libri:inglese", 0.50));
+        root.add(factory.createTransaction("C134", "promozione", "#pomodorotechnique:libri:inglese", 0.55));
+        root.add(factory.createTransaction("C72", "Bolletta luce Maggio-Giugno 2013", "#", 2.55));
+        root.add(factory.createTransaction("C134", "Design sito", "#p2p", 2.80));
 
         CashFlow expected = factory.createCashFlow("#", 6.40);
 
@@ -164,14 +140,10 @@ public class CenterTest {
 
     @Test
     public void test_IndirectCostsWithoutAllocation() throws Exception {
-        Transaction transaction1 = factory.createTransaction("C201", "traduzione", "#pomodorotechnique:libri:inglese", 0.50);
-        Transaction transaction2 = factory.createTransaction("C134", "promozione", "#pomodorotechnique:libri:inglese", 0.55);
-        Transaction transaction3 = factory.createTransaction("C72", "Bolletta luce Maggio-Giugno 2013", "#", 2.55);
-
         Center root = factory.createRootCenter();
-        root.addRecord(transaction1);
-        root.addRecord(transaction2);
-        root.addRecord(transaction3);
+        root.add(factory.createTransaction("C201", "traduzione", "#pomodorotechnique:libri:inglese", 0.50));
+        root.add(factory.createTransaction("C134", "promozione", "#pomodorotechnique:libri:inglese", 0.55));
+        root.add(factory.createTransaction("C72", "Bolletta luce Maggio-Giugno 2013", "#", 2.55));
 
         List<CashFlow> expected = new ArrayList<CashFlow>();
         CashFlow indirectCosts1 = factory.createCashFlow("#");
@@ -186,14 +158,10 @@ public class CenterTest {
 
     @Test
     public void test_InheritedIndirectCostsWithoutAllocation() throws Exception {
-        Transaction transaction1 = factory.createTransaction("C201", "traduzione", "#pomodorotechnique:libri:inglese", 0.50);
-        Transaction transaction2 = factory.createTransaction("C134", "promozione", "#pomodorotechnique:libri:inglese", 0.55);
-        Transaction transaction3 = factory.createTransaction("C72", "Bolletta luce Maggio-Giugno 2013", "#", 2.55);
-
         Center root = factory.createRootCenter();
-        root.addRecord(transaction1);
-        root.addRecord(transaction2);
-        root.addRecord(transaction3);
+        root.add(factory.createTransaction("C201", "traduzione", "#pomodorotechnique:libri:inglese", 0.50));
+        root.add(factory.createTransaction("C134", "promozione", "#pomodorotechnique:libri:inglese", 0.55));
+        root.add(factory.createTransaction("C72", "Bolletta luce Maggio-Giugno 2013", "#", 2.55));
 
         List<CashFlow> expected = new ArrayList<CashFlow>();
         CashFlow indirectCosts1 = factory.createCashFlow("#");
@@ -208,16 +176,11 @@ public class CenterTest {
 
     @Test
     public void test_IndirectCostsAllocatedByCostProportion() throws Exception {
-        Transaction transaction1 = factory.createTransaction("C201", "traduzione", "#pomodorotechnique:libri:inglese", 0.50);
-        Transaction transaction2 = factory.createTransaction("C134", "promozione", "#pomodorotechnique:libri:inglese", 0.55);
-        Transaction transaction3 = factory.createTransaction("C72", "Bolletta luce Maggio-Giugno 2013", "#", 2.55);
-        Transaction transaction4 = factory.createTransaction("C134", "Design sito", "#p2p", 2.80);
-
         Center root = factory.createRootCenter();
-        root.addRecord(transaction1);
-        root.addRecord(transaction2);
-        root.addRecord(transaction3);
-        root.addRecord(transaction4);
+        root.add(factory.createTransaction("C201", "traduzione", "#pomodorotechnique:libri:inglese", 0.50));
+        root.add(factory.createTransaction("C134", "promozione", "#pomodorotechnique:libri:inglese", 0.55));
+        root.add(factory.createTransaction("C72", "Bolletta luce Maggio-Giugno 2013", "#", 2.55));
+        root.add(factory.createTransaction("C134", "Design sito", "#p2p", 2.80));
 
         List<CashFlow> expected = new ArrayList<CashFlow>();
         CashFlow indirectCosts1 = factory.createCashFlow("#", 0.69);
@@ -231,16 +194,11 @@ public class CenterTest {
 
     @Test
     public void test_IndirectCostsAllocatedByCostProportion_bis() throws Exception {
-        Transaction transaction1 = factory.createTransaction("C201", "traduzione", "#pomodorotechnique:libri:inglese", 0.50);
-        Transaction transaction2 = factory.createTransaction("C134", "promozione", "#pomodorotechnique:libri:inglese", 0.55);
-        Transaction transaction3 = factory.createTransaction("C72", "Bolletta luce Maggio-Giugno 2013", "#", 2.55);
-        Transaction transaction4 = factory.createTransaction("C134", "Design sito", "#p2p", 2.80);
-
         Center root = factory.createRootCenter();
-        root.addRecord(transaction1);
-        root.addRecord(transaction2);
-        root.addRecord(transaction3);
-        root.addRecord(transaction4);
+        root.add(factory.createTransaction("C201", "traduzione", "#pomodorotechnique:libri:inglese", 0.50));
+        root.add(factory.createTransaction("C134", "promozione", "#pomodorotechnique:libri:inglese", 0.55));
+        root.add(factory.createTransaction("C72", "Bolletta luce Maggio-Giugno 2013", "#", 2.55));
+        root.add(factory.createTransaction("C134", "Design sito", "#p2p", 2.80));
 
         List<CashFlow> expected = new ArrayList<CashFlow>();
         CashFlow indirectCosts1 = factory.createCashFlow("#");
@@ -255,16 +213,11 @@ public class CenterTest {
 
     @Test
     public void test_IndirectCosts_InheritedButReallocatedOnlyOnce() throws Exception {
-        Transaction transaction1 = factory.createTransaction("C201", "traduzione", "#pomodorotechnique:libri:inglese", 0.50);
-        Transaction transaction2 = factory.createTransaction("C134", "promozione", "#pomodorotechnique:libri:inglese", 0.55);
-        Transaction transaction3 = factory.createTransaction("C72", "Bolletta luce Maggio-Giugno 2013", "#", 2.55);
-        Transaction transaction4 = factory.createTransaction("C134", "Design sito", "#p2p", 2.80);
-
         Center root = factory.createRootCenter();
-        root.addRecord(transaction1);
-        root.addRecord(transaction2);
-        root.addRecord(transaction3);
-        root.addRecord(transaction4);
+        root.add(factory.createTransaction("C201", "traduzione", "#pomodorotechnique:libri:inglese", 0.50));
+        root.add(factory.createTransaction("C134", "promozione", "#pomodorotechnique:libri:inglese", 0.55));
+        root.add(factory.createTransaction("C72", "Bolletta luce Maggio-Giugno 2013", "#", 2.55));
+        root.add(factory.createTransaction("C134", "Design sito", "#p2p", 2.80));
 
         List<CashFlow> expected = new ArrayList<CashFlow>();
         CashFlow indirectCosts1 = factory.createCashFlow("#");
@@ -279,18 +232,12 @@ public class CenterTest {
 
     @Test
     public void test_IndirectCosts_InheritedAndReallocatedTwice() throws Exception {
-        Transaction transaction1 = factory.createTransaction("C201", "traduzione", "#pomodorotechnique:libri:inglese", 0.50);
-        Transaction transaction2 = factory.createTransaction("C134", "promozione", "#pomodorotechnique:libri:inglese", 0.55);
-        Transaction transaction3 = factory.createTransaction("C72", "Bolletta luce Maggio-Giugno 2013", "#", 2.55);
-        Transaction transaction4 = factory.createTransaction("C134", "Design sito", "#p2p", 2.80);
-        Transaction transaction5 = factory.createTransaction("C201", "Traduzione", "#pomodorotechnique:libri:tedesco", 2.10);
-
         Center root = factory.createRootCenter();
-        root.addRecord(transaction1);
-        root.addRecord(transaction2);
-        root.addRecord(transaction3);
-        root.addRecord(transaction4);
-        root.addRecord(transaction5);
+        root.add(factory.createTransaction("C201", "traduzione", "#pomodorotechnique:libri:inglese", 0.50));
+        root.add(factory.createTransaction("C134", "promozione", "#pomodorotechnique:libri:inglese", 0.55));
+        root.add(factory.createTransaction("C72", "Bolletta luce Maggio-Giugno 2013", "#", 2.55));
+        root.add(factory.createTransaction("C134", "Design sito", "#p2p", 2.80));
+        root.add(factory.createTransaction("C201", "Traduzione", "#pomodorotechnique:libri:tedesco", 2.10));
 
         List<CashFlow> expected = new ArrayList<CashFlow>();
         CashFlow indirectCosts1 = factory.createCashFlow("#", 0.45);
@@ -304,20 +251,13 @@ public class CenterTest {
 
     @Test
     public void test_IndirectCosts_Many() throws Exception {
-        Transaction transaction1 = factory.createTransaction("C201", "traduzione", "#pomodorotechnique:libri:inglese", 0.50);
-        Transaction transaction2 = factory.createTransaction("C134", "promozione", "#pomodorotechnique:libri:inglese", 0.55);
-        Transaction transaction3 = factory.createTransaction("C72",  "Bolletta luce Maggio-Giugno 2013", "#", 2.55);
-        Transaction transaction4 = factory.createTransaction("C134", "Design sito", "#p2p", 2.80);
-        Transaction transaction5 = factory.createTransaction("C201", "Traduzione", "#pomodorotechnique:libri:tedesco", 2.10);
-        Transaction transaction6 = factory.createTransaction("C18",  "Stesura Cap.3", "#pomodorotechnique:libri", 3.10);
-
         Center root = factory.createRootCenter();
-        root.addRecord(transaction1);
-        root.addRecord(transaction2);
-        root.addRecord(transaction3);
-        root.addRecord(transaction4);
-        root.addRecord(transaction5);
-        root.addRecord(transaction6);
+        root.add(factory.createTransaction("C201", "traduzione", "#pomodorotechnique:libri:inglese", 0.50));
+        root.add(factory.createTransaction("C134", "promozione", "#pomodorotechnique:libri:inglese", 0.55));
+        root.add(factory.createTransaction("C72",  "Bolletta luce Maggio-Giugno 2013", "#", 2.55));
+        root.add(factory.createTransaction("C134", "Design sito", "#p2p", 2.80));
+        root.add(factory.createTransaction("C201", "Traduzione", "#pomodorotechnique:libri:tedesco", 2.10));
+        root.add(factory.createTransaction("C18",  "Stesura Cap.3", "#pomodorotechnique:libri", 3.10));
 
         List<CashFlow> expected = new ArrayList<CashFlow>();
         expected.add(factory.createCashFlow("#pomodorotechnique:libri", 1.02));
