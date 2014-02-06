@@ -1,5 +1,6 @@
 package it.mondogrua.lab.accounting;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -25,142 +26,207 @@ import java.util.Map;
  */
 public class Center {
 
-    private final CenterId centerId;
+    public static final Center EMPTY = new Center(CenterId.EMPTY, null, null) {
+        @Override
+        protected List<CashFlow> indirectCostsFor(CenterId centerId) {
+            return new ArrayList<CashFlow>();
+        }
+    };
 
-    private final Center parent;
+    private final CenterId _id;
 
-    private final Map<CenterId, Center> children = new HashMap<CenterId, Center>();
+    private final Center _parent;
 
-    private final Collection<Record> records = new ArrayList<Record>();
+    private final Map<CenterId, Center> _children = new HashMap<CenterId, Center>();
 
-    private Strategy strategy;
+    private final Collection<Transaction> _records = new ArrayList<Transaction>();
+
+    /**
+     * Collaborator: compute the cost reallocation
+     */
+    private Strategy _strategy;
+
+    /**
+     * Collaborator: create the sub-centers.
+     */
+    private final Factory _factory;
 
     // Constructor -------------------------------------------------------------
 
-    public Center(CenterId id, Center parent, Strategy strategy) {
+    public Center(CenterId id, Center parent, Factory factory) {
         super();
-        this.centerId = id;
-        this.parent = parent;
-        this.strategy = strategy;
+        _id = id;
+        _parent = parent;
+        _factory = factory;
+        _strategy = Strategy.EMPTY;
     }
 
     // Public Methods ----------------------------------------------------------
 
-    public boolean addRecord(Record record) {
+    public boolean addRecord(Transaction transaction) {
 
-        if (!record.getId().startWith(centerId)) {
+        if (!transaction.getId().startWith(_id)) {
             return false;
         }
 
-        if (record.getId().equals(centerId)) {
-            records.add(record);
+        if (transaction.getId().equals(_id)) {
+            _records.add(transaction);
             return true;
         } else {
-            return passToChildren(record);
+            return passToChildren(transaction);
         }
     }
 
-    public Cost directCosts() {
-        Cost costAmount = new Cost(centerId);
-        for (Record record : records) {
+    public Report getReport(CenterId centerId) {
+
+        if (!centerId.startWith(_id)) {
+            return Report.EMPTY;
+        }
+
+        if (centerId.equals(_id)) {
+            return getReport();
+        } else {
+            for (Center child : _children.values()) {
+                Report report = child.getReport(centerId);
+                if (!report.isEmpty()) {
+                    return report;
+                }
+            }
+            return Report.EMPTY;
+        }
+    }
+
+    /**
+     * @return The direct costs of the Center.
+     */
+    public CashFlow directCosts() {
+        CashFlow costAmount = new CashFlow(_id);
+        for (Transaction record : _records) {
             record.addCost(costAmount);
         }
         return costAmount;
     }
 
-    public List<Cost> childrenCosts() {
-        List<Cost> result = new ArrayList<Cost>();
-        for (Center center : children.values()) {
-            result.add(center.directCosts());
-            result.addAll(center.childrenCosts());
-        }
-        return result;
+    /**
+     *
+     * @return the list of indirect cost belonging to the Center
+     */
+    public List<CashFlow> indirectCosts() {
+        return _parent.indirectCostsFor(_id);
     }
 
-    public Money childrenTotalDirectCosts() {
-        Money result = new Money(0);
-        for (Center center : children.values()) {
-            result = result.add(center.totalDirectCosts());
-        }
-        return result;
-    }
-
-    public Money totalDirectCosts() {
-        Money result = directCosts().getValue();
-        result = result.add(childrenTotalDirectCosts());
-        return result;
-    }
-
-    public Money strictlyCosts() {
-        Money strictlyDirectCosts = directCosts().getValue();
-        Money indirectCosts = ancestorIndirectCosts();
-
-        Money strictlyCosts = strictlyDirectCosts.add(indirectCosts);
-
-        return strictlyCosts;
-    }
-
-    public Money parentIndirectCosts() {
-        return parent.strictlyIndirectCostsFor(centerId);
-    }
-
-    public Money ancestorIndirectCosts() {
-        return parent.totalIndirectCostsFor(centerId);
-    }
+    // Overridden Object Methods -----------------------------------------------
 
     @Override
     public String toString() {
-        return centerId.toString();
+        return _id.toString();
     }
 
-    // Package Methods ---------------------------------------------------------
+    // Protected Methods ---------------------------------------------------------
 
-    boolean hasChild(CenterId centerId) {
-        return children.containsKey(centerId);
+    /**
+    *
+    * @param centerId
+    * @return the list of the reallocated indirect cost belonging to the
+    * sub-center with id centerId.
+    */
+    protected List<CashFlow> indirectCostsFor(CenterId centerId) {
+        assert _children.containsKey(centerId);
+
+        return _strategy.indirectCostsFor(centerId);
     }
 
-    Center get(CenterId centerId) {
-        return children.get(centerId);
+    protected CenterId getId() {
+        return _id;
+    }
+
+    protected void setStrategy(Strategy strategy) {
+        _strategy = strategy;
+    }
+
+    protected boolean hasChild(CenterId centerId) {
+        return _children.containsKey(centerId);
+    }
+
+    protected Money childrenTotalDirectCosts() {
+        Money result = new Money(BigDecimal.ZERO);
+        for (Center center : _children.values()) {
+            result = result.add(center.totalDirectCosts().getValue());
+        }
+        return result;
+    }
+
+    protected CashFlow childTotalDirectCosts(CenterId centerId) {
+        assert _children.containsKey(centerId);
+
+        Center child = _children.get(centerId);
+        return child.totalDirectCosts();
     }
 
     // Private Methods ---------------------------------------------------------
 
-    private Money strictlyIndirectCostsFor(CenterId centerId) {
-        return strategy.computeStrictlyIndirectCosts(this, centerId);
+    private CashFlow totalDirectCosts() {
+        CashFlow result = directCosts();
+        result = result.add(childrenTotalDirectCosts());
+        return result;
     }
 
-    private Money totalIndirectCostsFor(CenterId centerId) {
-        return strategy.computeTotalIndirectCosts(this, centerId);
+    /**
+     * @return the list of direct costs for the sub-centers.
+     */
+    private List<CashFlow> childrenDirectCosts() {
+        List<CashFlow> result = new ArrayList<CashFlow>();
+        for (Center center : _children.values()) {
+            result.add(center.directCosts());
+            result.addAll(center.childrenDirectCosts());
+        }
+        return result;
     }
 
-//    private void addTotalCostsTo(Cost costAmount) {
-//        costAmount.add(directCosts().getValue());
-//
-//        for (Center center : children.values()) {
-//            center.addTotalCostsTo(costAmount);
-//        }
-//    }
+    private Report getReport() {
+        ReportBuilder builder = new ReportBuilder(_id);
+        builder.setDirectCosts(directCosts());
+        builder.setChildrenDirectCosts(childrenDirectCosts());
+        builder.setTotalDirectCosts(totalDirectCosts());
+        builder.setIndirectCosts(indirectCosts());
+        return builder.getReport();
+    }
 
-    private boolean passToChildren(Record record) {
-        for (Center child : children.values()) {
-            if (child.addRecord(record)) {
+    private boolean passToChildren(Transaction transaction) {
+        assert (_id.startWith(transaction.getId()) &&
+                !_id.equals(transaction.getId()));
+
+        for (Center child : _children.values()) {
+            if (child.addRecord(transaction)) {
                 return true;
             }
         }
 
-        Center newChild = addNewChild(record.getId());
-        newChild.addRecord(record);
+        CenterId nextId = transaction.getId().trim(_id.size()+1);
+        Center newChild = addNewChild(nextId);
+
+        newChild.addRecord(transaction);
 
         return false;
     }
 
     private Center addNewChild(CenterId id) {
-        CenterId nextId = id.trim(this.centerId.size());
-        Center center = new Center(nextId, this, strategy);
-        children.put(center.centerId, center);
-        return center;
+        assert (_id.startWith(id) &&
+                _id.size() +1 == id.size() &&
+                !hasChild(id));
+
+        Center child = _factory.createCenter(id, this);
+        addChild(child);
+        return child;
     }
 
+    private Center addChild(Center center) {
+        assert (_id.startWith(center.getId()) &&
+                _id.size() +1 == center.getId().size() &&
+                !hasChild(center.getId()));
 
+        _children.put(center._id, center);
+        return center;
+    }
 
 }

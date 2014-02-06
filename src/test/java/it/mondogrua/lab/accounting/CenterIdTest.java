@@ -1,4 +1,4 @@
-package it.mondogrua.lab.contabilita;
+package it.mondogrua.lab.accounting;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

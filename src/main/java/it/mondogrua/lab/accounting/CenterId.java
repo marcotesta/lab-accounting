@@ -1,35 +1,41 @@
 package it.mondogrua.lab.accounting;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class CenterId {
 
-    public static final String SEPARATOR = ":";
-    public static final String ROOT_NAME = "#";
+    static final String SEPARATOR = ":";
+    static final String ROOT_NAME = "#";
+    private static final String EMPTY_NAME = "---";
 
-    private final List<String> chunks;
+    public static final CenterId ROOT =
+            new CenterId(new ArrayList<String>(Arrays.asList(new String[]{ROOT_NAME})));
+
+    public static final CenterId EMPTY =
+            new CenterId(new ArrayList<String>(Arrays.asList(new String[]{EMPTY_NAME})));;
+
+    // Instance Member Fields --------------------------------------------------
+
+    private final List<String> _chunks;
 
     // Constructor -------------------------------------------------------------
 
     public CenterId(List<String> chunks) {
-        if (chunks.size() < 1 || !chunks.get(0).equals(ROOT_NAME)) {
+        if (chunks.size() < 1 || !(chunks.get(0).equals(ROOT_NAME) || chunks.get(0).equals(EMPTY_NAME))) {
             throw new IllegalArgumentException("Center id should have at least the root node");
         }
-        this.chunks = chunks;
+        _chunks = new ArrayList<String>(chunks);
     }
 
-    // Public Methods ----------------------------------------------------------
-
-
-    public int size() {
-        return chunks.size();
-    }
+    // Public Methods Overriding Object methods --------------------------------
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((chunks == null) ? 0 : chunks.hashCode());
+        result = prime * result + ((_chunks == null) ? 0 : _chunks.hashCode());
         return result;
     }
 
@@ -42,20 +48,20 @@ public class CenterId {
         if (getClass() != obj.getClass())
             return false;
         CenterId other = (CenterId) obj;
-        if (chunks == null) {
-            if (other.chunks != null) {
+        if (_chunks == null) {
+            if (other._chunks != null) {
                 return false;
             } else {
                 return true;
             }
-        } else if (!chunks.equals(other.chunks)) {
+        } else if (!_chunks.equals(other._chunks)) {
 
-            if (chunks.size() != other.chunks.size()) {
+            if (_chunks.size() != other._chunks.size()) {
                 return false;
             }
 
-            for (int i=0; i < chunks.size(); ++i) {
-                if (! chunks.get(i).equals(other.chunks.get(i))) {
+            for (int i=0; i < _chunks.size(); ++i) {
+                if (! _chunks.get(i).equals(other._chunks.get(i))) {
                     return false;
                 }
             }
@@ -65,14 +71,35 @@ public class CenterId {
         return true;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder res = new StringBuilder();
+        res.append(_chunks.get(0));
+
+        if (_chunks.size()>1) {
+            res.append(_chunks.get(1));
+        }
+        for (int i=2; i<_chunks.size(); ++i) {
+            res.append(SEPARATOR).append(_chunks.get(i));
+        }
+
+        return res.toString();
+    }
+
+    // Public Methods ----------------------------------------------------------
+
+    public int size() {
+        return _chunks.size();
+    }
+
     public boolean startWith(CenterId that) {
 
-        if (that.chunks.size() > this.chunks.size()) {
+        if (that._chunks.size() > this._chunks.size()) {
             return false;
         }
 
-        for (int i = 0; i< that.chunks.size(); ++i) {
-            if (!that.chunks.get(i).equals(this.chunks.get(i))) {
+        for (int i = 0; i< that._chunks.size(); ++i) {
+            if (!that._chunks.get(i).equals(this._chunks.get(i))) {
                 return false;
             }
         }
@@ -80,24 +107,24 @@ public class CenterId {
     }
 
     public CenterId trim(int size) {
-        if (chunks.size() <= size) {
+        if (_chunks.size() < size) {
             throw new IndexOutOfBoundsException();
         }
-        return new CenterId(chunks.subList(0, size));
+        return new CenterId(_chunks.subList(0, size));
     }
 
-    @Override
-    public String toString() {
-        StringBuilder res = new StringBuilder();
-        res.append(chunks.get(0));
-
-        if (chunks.size()>1) {
-            res.append(chunks.get(1));
+    public CenterId add(String chunk) {
+        if (chunk == null) {
+            throw new NullPointerException("Invalid Center ID chunk: cannot be null");
         }
-        for (int i=2; i<chunks.size(); ++i) {
-            res.append(SEPARATOR).append(chunks.get(i));
+        if (chunk.equals(ROOT_NAME)) {
+            throw new IllegalArgumentException("Invalid Center ID chunk: cannot be "+ ROOT_NAME);
         }
 
-        return res.toString();
+        List<String> thatChunks = new ArrayList<String>(_chunks);
+        thatChunks.add(chunk);
+        return new CenterId(thatChunks);
     }
+
+
 }

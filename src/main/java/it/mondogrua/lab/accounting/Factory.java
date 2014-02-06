@@ -1,43 +1,66 @@
 package it.mondogrua.lab.accounting;
 
+import java.math.BigDecimal;
 import java.security.InvalidParameterException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Factory {
 
     // Public Methods ---------------------------------------------------------
 
-    public Record createRecord(String centerIdString, Money cost) throws ParseException {
+    public Transaction createTransaction(String account, String description,
+            String centerIdString, BigDecimal val) throws ParseException {
         CenterId centerId = createCenterId(centerIdString);
-        return new Record(centerId, cost);
+        Money money = new Money(val);
+        return new Transaction(account, description, centerId, money);
     }
 
     public CenterId createCenterId(String centerIdString) throws ParseException {
-        List<String> id = convertCenterIdString(centerIdString);
-        return new CenterId(id);
-    }
-
-    // Private Methods --------------------------------------------------------
-
-
-    private List<String> convertCenterIdString(String centerIdString) throws ParseException {
         if (centerIdString == null ||
                 centerIdString.length() < 1) {
-            throw new ParseException("Centro id cannot be empty");
+            throw new ParseException("Center ID cannot be empty");
         }
 
-        List<String> id = new ArrayList<String>();
         if (!centerIdString.substring(0, 1).equals(CenterId.ROOT_NAME)) {
-            throw new InvalidParameterException("Id must start with '"+CenterId.ROOT_NAME+"'");
+            throw new InvalidParameterException("ID must start with '"+CenterId.ROOT_NAME+"'");
         }
-        id.add(CenterId.ROOT_NAME);
+
+        if (centerIdString.length() == 1) {
+            return CenterId.ROOT;
+        }
+
+        CenterId id = CenterId.ROOT;
+
         String[] tokens = centerIdString.substring(1).split(CenterId.SEPARATOR);
         for (String token : tokens) {
-            id.add(token);
+            id = id.add(token);
         }
         return id;
     }
 
+    public Center createRootCenter() throws ParseException {
+        Center center = new Center(CenterId.ROOT, Center.EMPTY, this);
+        center.setStrategy(new CostProportionStrategy(center));
+        return center;
+    }
+
+    public Center createCenter(CenterId id, Center parent) {
+        if (parent.getId().startWith(id) &&
+               parent.getId().size() +1 == id.size() &&
+               !parent.hasChild(id)) {
+
+            throw new IllegalArgumentException();
+        }
+
+        Center center = new Center(id, parent, this);
+        center.setStrategy(new CostProportionStrategy(center));
+
+        return center;
+    }
+
+    public CashFlow createCashFlow(String centerIdString) throws ParseException {
+        return new CashFlow(createCenterId(centerIdString));
+    }
+
+    // Private Methods --------------------------------------------------------
 
 }

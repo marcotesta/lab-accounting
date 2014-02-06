@@ -1,41 +1,56 @@
 package it.mondogrua.lab.accounting;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
 public class CostProportionStrategy implements Strategy {
 
-    public Money computeStrictlyIndirectCosts(Center center, CenterId centerId) {
-        if (! center.hasChild(centerId)) {
-            throw new IllegalArgumentException("'" + centerId +"' is not a sub-center of '" + center + "'");
-        }
+    private final Center _center;
 
-        Money strictlyDirectCosts = center.directCosts().getValue();
+    // Constructor -------------------------------------------------------------
 
-        Double ratio = computeChildRatio(center, centerId);
-
-        return strictlyDirectCosts.times(ratio);
+    public CostProportionStrategy(Center center) {
+        super();
+        this._center = center;
     }
 
-    public Money computeTotalIndirectCosts(Center center, CenterId centerId) {
-        if (! center.hasChild(centerId)) {
-            throw new IllegalArgumentException("'" + centerId +"' is not a sub-center of '" + center + "'");
+    // Public Methods ----------------------------------------------------------
+
+    public List<CashFlow> indirectCostsFor(CenterId childId) {
+        ArrayList<CashFlow> childIndirectCosts = new ArrayList<CashFlow>();
+
+        CashFlow directCosts = _center.directCosts();
+        childIndirectCosts.add(reallocateCosts(directCosts, childId));
+
+        List<CashFlow> indirectCosts = _center.indirectCosts();
+        for (CashFlow cashFlow : indirectCosts) {
+            childIndirectCosts.add(reallocateCosts(cashFlow, childId));
         }
 
-        Money strictlyCosts = center.strictlyCosts();
-
-        Double ratio = computeChildRatio(center, centerId);
-
-        return strictlyCosts.times(ratio);
+        return childIndirectCosts;
     }
 
     // Private Methods ---------------------------------------------------------
 
-    private Double computeChildRatio(Center center, CenterId centerId) {
-        assert( center.get(centerId) != null);
+    private CashFlow reallocateCosts(CashFlow costs, CenterId centerId) {
+        assert _center.hasChild(centerId);
 
-        Center child = center.get(centerId);
+        CashFlow reallocatedCosts;
 
-        Money childrenTotalCosts = center.childrenTotalDirectCosts();
-        Money branchCost = child.totalDirectCosts();
+        BigDecimal reallocationFactor = reallocationFactor(centerId);
+        reallocatedCosts = costs.divide(reallocationFactor);
 
-        return branchCost.div(childrenTotalCosts);
+        return reallocatedCosts;
     }
+
+    private BigDecimal reallocationFactor(CenterId centerId) {
+        assert _center.hasChild(centerId);
+        Money childrenTotalDirectCosts = _center.childrenTotalDirectCosts();
+        CashFlow childTotalDirectCosts = _center.childTotalDirectCosts(centerId);
+        BigDecimal reallocationFactor = childTotalDirectCosts.divide(childrenTotalDirectCosts);
+        return reallocationFactor;
+    }
+
+
 }

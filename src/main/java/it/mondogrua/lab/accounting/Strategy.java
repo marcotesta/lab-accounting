@@ -1,9 +1,17 @@
 package it.mondogrua.lab.accounting;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public interface Strategy {
 
-    public Money computeStrictlyIndirectCosts(Center center, CenterId centerId);
+    public static final Strategy EMPTY = new Strategy() {
 
-    public Money computeTotalIndirectCosts(Center center, CenterId centerId);
+        public List<CashFlow> indirectCostsFor(CenterId centerId) {
+            return new ArrayList<CashFlow>();
+        }
+    };
+
+    public List<CashFlow> indirectCostsFor(CenterId centerId);
 
 }
