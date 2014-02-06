@@ -39,7 +39,7 @@ public class CostProportionStrategy implements Strategy {
         CashFlow reallocatedCosts;
 
         BigDecimal reallocationFactor = reallocationFactor(centerId);
-        reallocatedCosts = costs.divide(reallocationFactor);
+        reallocatedCosts = costs.multiply(reallocationFactor);
 
         return reallocatedCosts;
     }

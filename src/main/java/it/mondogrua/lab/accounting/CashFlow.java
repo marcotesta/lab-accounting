@@ -85,6 +85,11 @@ public class CashFlow {
         return _money.divide(denominator);
     }
 
+    public CashFlow multiply(BigDecimal multiplicand) {
+        _money = _money.multiply(multiplicand);
+        return this;
+    }
+
     public Money getValue() {
         return _money;
     }

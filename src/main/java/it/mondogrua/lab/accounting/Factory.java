@@ -8,9 +8,9 @@ public class Factory {
     // Public Methods ---------------------------------------------------------
 
     public Transaction createTransaction(String account, String description,
-            String centerIdString, BigDecimal val) throws ParseException {
+            String centerIdString, Double val) throws ParseException {
         CenterId centerId = createCenterId(centerIdString);
-        Money money = new Money(val);
+        Money money = new Money(new BigDecimal(val));
         return new Transaction(account, description, centerId, money);
     }
 
@@ -60,6 +60,14 @@ public class Factory {
     public CashFlow createCashFlow(String centerIdString) throws ParseException {
         return new CashFlow(createCenterId(centerIdString));
     }
+
+    public CashFlow createCashFlow(String centerIdString, Double val) throws ParseException {
+        CashFlow cashFlow = createCashFlow(centerIdString);
+        cashFlow.add(new Money(new BigDecimal(val)));
+        return cashFlow;
+    }
+
+
 
     // Private Methods --------------------------------------------------------
 

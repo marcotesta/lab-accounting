@@ -77,6 +77,10 @@ public class Center {
         }
     }
 
+    public Report getReport(String centerIdString) throws ParseException {
+        return getReport(_factory.createCenterId(centerIdString));
+    }
+
     public Report getReport(CenterId centerId) {
 
         if (!centerId.startWith(_id)) {
@@ -207,7 +211,7 @@ public class Center {
 
         newChild.addRecord(transaction);
 
-        return false;
+        return true;
     }
 
     private Center addNewChild(CenterId id) {
