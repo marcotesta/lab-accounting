@@ -37,6 +37,7 @@ public class Accounting
             System.out.println( "Write center id: " );
             Scanner in = new Scanner(System.in);
             String centerId = in.next();
+            in.close();
 
             accounting.printReportFor(centerId, System.out);
 
