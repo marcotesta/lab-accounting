@@ -38,7 +38,7 @@ public class Factory {
     }
 
     public Center createRootCenter() {
-        Center center = new Center(CenterId.ROOT, Center.EMPTY, this);
+        Center center = new Center(CenterId.ROOT, Center.NULL, this);
         center.setStrategy(new CostProportionStrategy(center));
         return center;
     }
