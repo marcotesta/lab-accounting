@@ -44,14 +44,11 @@ public class Accounting
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (ParseException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         }
 
     }
 
-    private void printReportFor(String centerId, PrintStream out) throws ParseException {
+    private void printReportFor(String centerId, PrintStream out) {
         Report report = _root.getReport(centerId);
         out.print( report.toString() );
     }

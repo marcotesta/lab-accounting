@@ -13,16 +13,13 @@ import java.util.Map;
  * Responsibilities:
  * - Knows his children
  * - Create his children
- * - Holds records
+ * - Holds transaction records
  * - Knows the strictly directs costs amount
  * - Knows the direct cost amount of the children
  * - Knows the total direct costs, i.e. the strictly direct costs plus the
  *   children's direct costs.
  * - Computes the indirect costs for a child
  *
- * Collaborators:
- * - _costReallocator:Strategy. A strategy which knows how to compute the
- *   indirect costs for a given child.
  */
 public class Center {
 
@@ -54,9 +51,9 @@ public class Center {
     private final Map<CenterId, Center> _children = new HashMap<CenterId, Center>();
 
     /**
-     * The records belonging to the center.
+     * The transaction records belonging to the center.
      */
-    private final Collection<Transaction> _records = new ArrayList<Transaction>();
+    private final Collection<Transaction> _transactions = new ArrayList<Transaction>();
 
     /**
      * collaborator: A strategy which knows how to compute the
@@ -97,14 +94,14 @@ public class Center {
         }
 
         if (transaction.getId().equals(_id)) {
-            _records.add(transaction);
+            _transactions.add(transaction);
             return true;
         } else {
             return passToChildren(transaction);
         }
     }
 
-    public Report getReport(String centerIdString) throws ParseException {
+    public Report getReport(String centerIdString) {
         return getReport(_factory.createCenterId(centerIdString));
     }
 
@@ -139,8 +136,8 @@ public class Center {
      */
     public CashFlow directCosts() {
         CashFlow costAmount = new CashFlow(_id);
-        for (Transaction record : _records) {
-            record.addCost(costAmount);
+        for (Transaction transaction : _transactions) {
+            transaction.addCost(costAmount);
         }
         return costAmount;
     }

@@ -8,16 +8,16 @@ public class Factory {
     // Public Methods ---------------------------------------------------------
 
     public Transaction createTransaction(String account, String description,
-            String centerIdString, Double val) throws ParseException {
+            String centerIdString, Double val) {
         CenterId centerId = createCenterId(centerIdString);
         Money money = new Money(new BigDecimal(val));
         return new Transaction(account, description, centerId, money);
     }
 
-    public CenterId createCenterId(String centerIdString) throws ParseException {
+    public CenterId createCenterId(String centerIdString) {
         if (centerIdString == null ||
                 centerIdString.length() < 1) {
-            throw new ParseException("Center ID cannot be empty");
+            throw new InvalidParameterException("Center ID cannot be empty");
         }
 
         if (!centerIdString.substring(0, 1).equals(CenterId.ROOT_NAME)) {
@@ -57,11 +57,11 @@ public class Factory {
         return center;
     }
 
-    public CashFlow createCashFlow(String centerIdString) throws ParseException {
+    public CashFlow createCashFlow(String centerIdString) {
         return new CashFlow(createCenterId(centerIdString));
     }
 
-    public CashFlow createCashFlow(String centerIdString, Double val) throws ParseException {
+    public CashFlow createCashFlow(String centerIdString, Double val) {
         CashFlow cashFlow = createCashFlow(centerIdString);
         cashFlow.add(new Money(new BigDecimal(val)));
         return cashFlow;

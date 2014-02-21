@@ -4,7 +4,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 /**
- *
+ * Represent a given amount of money.
+ * Is immutable
  *
  */
 public class Money implements Comparable<Money> {

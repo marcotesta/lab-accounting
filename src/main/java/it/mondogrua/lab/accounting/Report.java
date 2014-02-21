@@ -9,9 +9,9 @@ import static ch.lambdaj.Lambda.on;
 import static ch.lambdaj.Lambda.select;
 
 /**
- * Responsibility:
- * - hold the data to be printed in the repo
- * - print the repo
+ * Responsibilities:
+ * - hold the data to be printed in the report
+ * - print the report
  *
  */
 public class Report {

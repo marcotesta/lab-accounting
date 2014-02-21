@@ -2,6 +2,9 @@ package it.mondogrua.lab.accounting;
 
 import java.math.BigDecimal;
 
+/**
+ * Represent a cash flow related to a cost center.
+ */
 public class CashFlow {
 
     public static final CashFlow EMPTY = new CashFlow(CenterId.EMPTY) {
