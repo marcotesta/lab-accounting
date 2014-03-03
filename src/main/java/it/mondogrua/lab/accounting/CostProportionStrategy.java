@@ -46,9 +46,9 @@ public class CostProportionStrategy implements Strategy {
 
     private BigDecimal reallocationFactor(CenterId centerId) {
         assert _center.hasChild(centerId);
-        Money childrenTotalDirectCosts = _center.childrenTotalDirectCosts();
-        CashFlow childTotalDirectCosts = _center.childTotalDirectCosts(centerId);
-        BigDecimal reallocationFactor = childTotalDirectCosts.divide(childrenTotalDirectCosts);
+        Money childrenBranchCosts = _center.childrenBranchCosts();
+        CashFlow childBranchCosts = _center.childBranchCosts(centerId);
+        BigDecimal reallocationFactor = childBranchCosts.divide(childrenBranchCosts);
         return reallocationFactor;
     }
 

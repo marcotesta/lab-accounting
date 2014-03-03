@@ -152,26 +152,26 @@ public class Center {
         return _children.containsKey(centerId);
     }
 
-    protected Money childrenTotalDirectCosts() {
+    protected Money childrenBranchCosts() {
         Money result = new Money(BigDecimal.ZERO);
-        for (Center center : _children.values()) {
-            result = result.add(center.totalDirectCosts().getValue());
+        for (Center child : _children.values()) {
+            result = result.add(child.branchCosts().getValue());
         }
         return result;
     }
 
-    protected CashFlow childTotalDirectCosts(CenterId centerId) {
+    protected CashFlow childBranchCosts(CenterId centerId) {
         assert _children.containsKey(centerId);
 
         Center child = _children.get(centerId);
-        return child.totalDirectCosts();
+        return child.branchCosts();
     }
 
     // Private Methods ---------------------------------------------------------
 
-    private CashFlow totalDirectCosts() {
+    private CashFlow branchCosts() {
         CashFlow result = directCosts();
-        result = result.add(childrenTotalDirectCosts());
+        result = result.add(childrenBranchCosts());
         return result;
     }
 
@@ -191,7 +191,7 @@ public class Center {
         ReportBuilder builder = new ReportBuilder(_id);
         builder.setDirectCosts(directCosts());
         builder.setChildrenDirectCosts(childrenDirectCosts());
-        builder.setTotalDirectCosts(totalDirectCosts());
+        builder.setTotalDirectCosts(branchCosts());
         builder.setIndirectCosts(indirectCosts());
         return builder.getReport();
     }
