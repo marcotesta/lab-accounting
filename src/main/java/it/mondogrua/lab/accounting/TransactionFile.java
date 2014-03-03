@@ -1,6 +1,5 @@
 package it.mondogrua.lab.accounting;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -44,7 +43,7 @@ public class TransactionFile {
                 _root.add(transaction);
             } catch (NumberFormatException e) {
                 continue;
-            } catch (ParseException e) {
+            } catch (Exception e) {
                 continue;
             }
         }

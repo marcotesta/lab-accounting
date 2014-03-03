@@ -13,41 +13,56 @@ import java.util.Map;
  * Responsibilities:
  * - Knows his children
  * - Create his children
- * - Holds records
+ * - Holds transaction records
  * - Knows the strictly directs costs amount
  * - Knows the direct cost amount of the children
  * - Knows the total direct costs, i.e. the strictly direct costs plus the
  *   children's direct costs.
  * - Computes the indirect costs for a child
  *
- * Collaborators:
- * - IndirectCostComputer: a strategy which knows how to compute the indirect
- *   costs for a given child.
  */
 public class Center {
 
-    public static final Center EMPTY = new Center(CenterId.EMPTY, null, null) {
+    /**
+     * Represent a null Center object.
+     */
+    public static final Center NULL = new Center(CenterId.EMPTY, null, null) {
         @Override
         protected List<CashFlow> indirectCostsFor(CenterId centerId) {
             return new ArrayList<CashFlow>();
         }
     };
 
+    /**
+     * The unique identifier of an instance.
+     */
     private final CenterId _id;
 
+    /**
+     * collaborator. The parent center for which this center is a sub-center
+     * to whom the instance delegates the 'indirect costs' request.
+     */
     private final Center _parent;
 
+    /**
+     * collaborator. The sub-centers to which the instance delegates the
+     * 'sub-center direct costs' request.
+     */
     private final Map<CenterId, Center> _children = new HashMap<CenterId, Center>();
 
-    private final Collection<Transaction> _records = new ArrayList<Transaction>();
-
     /**
-     * Collaborator: compute the cost reallocation
+     * The transaction records belonging to the center.
      */
-    private Strategy _strategy;
+    private final Collection<Transaction> _transactions = new ArrayList<Transaction>();
 
     /**
-     * Collaborator: create the sub-centers.
+     * collaborator: A strategy which knows how to compute the
+     * indirect costs reallocation for a given child.
+     */
+    private Strategy _costReallocator;
+
+    /**
+     * collaborator: create the sub-centers.
      */
     private final Factory _factory;
 
@@ -58,11 +73,20 @@ public class Center {
         _id = id;
         _parent = parent;
         _factory = factory;
-        _strategy = Strategy.EMPTY;
+        _costReallocator = Strategy.EMPTY;
     }
 
     // Public Methods ----------------------------------------------------------
 
+    /**
+     *
+     * @param transaction
+     * @return True if the transaction has been added to this center instance
+     * or one of its children. If the transaction belongs to a sub-center, but
+     * the sub-center is not actually a child of the instance, than the center
+     * is created and added as a child. False if the transaction does not
+     * belong to this branch i.e. this instance or any of its children.
+     */
     public boolean add(Transaction transaction) {
 
         if (!transaction.getId().startWith(_id)) {
@@ -70,17 +94,24 @@ public class Center {
         }
 
         if (transaction.getId().equals(_id)) {
-            _records.add(transaction);
+            _transactions.add(transaction);
             return true;
         } else {
             return passToChildren(transaction);
         }
     }
 
-    public Report getReport(String centerIdString) throws ParseException {
+    public Report getReport(String centerIdString) {
         return getReport(_factory.createCenterId(centerIdString));
     }
 
+    /**
+     * Chain of responsibility. Returns the Report if the instance is able to
+     * generate one for the given center id, or pass the request to its
+     * children. Returns a null Report if it
+     * @param centerId
+     * @return
+     */
     public Report getReport(CenterId centerId) {
 
         if (!centerId.startWith(_id)) {
@@ -105,8 +136,8 @@ public class Center {
      */
     public CashFlow directCosts() {
         CashFlow costAmount = new CashFlow(_id);
-        for (Transaction record : _records) {
-            record.addCost(costAmount);
+        for (Transaction transaction : _transactions) {
+            transaction.addCost(costAmount);
         }
         return costAmount;
     }
@@ -137,7 +168,7 @@ public class Center {
     protected List<CashFlow> indirectCostsFor(CenterId centerId) {
         assert _children.containsKey(centerId);
 
-        return _strategy.indirectCostsFor(centerId);
+        return _costReallocator.indirectCostsFor(centerId);
     }
 
     protected CenterId getId() {
@@ -145,7 +176,7 @@ public class Center {
     }
 
     protected void setStrategy(Strategy strategy) {
-        _strategy = strategy;
+        _costReallocator = strategy;
     }
 
     protected boolean hasChild(CenterId centerId) {
@@ -197,8 +228,8 @@ public class Center {
     }
 
     private boolean passToChildren(Transaction transaction) {
-        assert (_id.startWith(transaction.getId()) &&
-                !_id.equals(transaction.getId()));
+        assert (transaction.getId().startWith(_id) &&
+                !transaction.getId().equals(_id));
 
         for (Center child : _children.values()) {
             if (child.add(transaction)) {
@@ -215,7 +246,7 @@ public class Center {
     }
 
     private Center addNewChild(CenterId id) {
-        assert (_id.startWith(id) &&
+        assert (id.startWith(_id) &&
                 _id.size() +1 == id.size() &&
                 !hasChild(id));
 
@@ -225,7 +256,7 @@ public class Center {
     }
 
     private Center addChild(Center center) {
-        assert (_id.startWith(center.getId()) &&
+        assert (center.getId().startWith(_id) &&
                 _id.size() +1 == center.getId().size() &&
                 !hasChild(center.getId()));
 

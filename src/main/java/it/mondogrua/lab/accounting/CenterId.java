@@ -2,9 +2,15 @@ package it.mondogrua.lab.accounting;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-public class CenterId {
+/**
+ * Unique identifier of a Center.
+ * Example: #pomodorotechnique:libri:inglese
+ * Is immutable
+ */
+final public class CenterId {
 
     static final String SEPARATOR = ":";
     static final String ROOT_NAME = "#";
@@ -26,10 +32,10 @@ public class CenterId {
         if (chunks.size() < 1 || !(chunks.get(0).equals(ROOT_NAME) || chunks.get(0).equals(EMPTY_NAME))) {
             throw new IllegalArgumentException("Center id should have at least the root node");
         }
-        _chunks = new ArrayList<String>(chunks);
+        _chunks = Collections.unmodifiableList(new ArrayList<String>(chunks));
     }
 
-    // Public Methods Overriding Object methods --------------------------------
+    // Overridden Object methods -----------------------------------------------
 
     @Override
     public int hashCode() {

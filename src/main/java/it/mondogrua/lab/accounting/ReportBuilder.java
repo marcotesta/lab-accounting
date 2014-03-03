@@ -3,6 +3,11 @@ package it.mondogrua.lab.accounting;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Responsibilities:
+ * - build a Report.
+ *
+ */
 public class ReportBuilder {
 
     private final CenterId _centerId;
