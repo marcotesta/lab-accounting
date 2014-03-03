@@ -31,14 +31,7 @@ public class TransactionFile {
         String [] nextLine;
         while ((nextLine = reader.readNext()) != null) {
             try {
-                if (nextLine.length != TRANSACT_ELEM_NUM) {
-                    continue;
-                }
-                String account = nextLine[0];
-                String description = nextLine[1];
-                String centerIdString = nextLine[3];
-                Double val = Double.valueOf(nextLine[2]);
-                Transaction transaction = _factory.createTransaction(account, description, centerIdString, val);
+                Transaction transaction = createTransaction(nextLine);
 
                 _root.add(transaction);
             } catch (NumberFormatException e) {
@@ -52,17 +45,17 @@ public class TransactionFile {
 
     // Private Methods ---------------------------------------------------------
 
-//    private Transaction createTransaction(String transactionRow) throws ParseException {
-//        String[] transactionElemen = transactionRow.split(cvsSplitBy);
-//        if (transactionElemen.length != TRANSACT_ELEM_NUM) {
-//            throw new IllegalArgumentException();
-//        }
-//        String account = transactionElemen[0];
-//        String description = transactionElemen[1];
-//        String centerIdString = transactionElemen[2];
-//        Double val = Double.valueOf(transactionElemen[3]);
-//        Transaction transaction = _factory.createTransaction(account, description, centerIdString, val);
-//
-//        return transaction;
-//    }
+    private Transaction createTransaction(String[] nextLine)
+            throws NumberFormatException, Exception {
+
+        if (nextLine.length != TRANSACT_ELEM_NUM) {
+            throw new Exception("Invalid row");
+        }
+        String account = nextLine[0];
+        String description = nextLine[1];
+        String centerIdString = nextLine[3];
+        Double val = Double.valueOf(nextLine[2]);
+        Transaction transaction = _factory.createTransaction(account, description, centerIdString, val);
+        return transaction;
+    }
 }
